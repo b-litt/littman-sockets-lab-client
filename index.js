@@ -313,7 +313,18 @@ const updateNominationsRemainingUI = (newNominationsRemaining) => {
  * @param {boolean} upvote - true if you are voting for the pokemon, false if voting against
  */
 function voteForPokemon(pokemon, upvote) {
-	// your code goes here!
+	if (id != null && username != ""){
+		const votee = {
+			type: "VOTE",
+			nominee: pokemon,
+			nominater: id,
+			upvote: !upvote 
+			
+		}
+		const svote = JSON.stringify(votee)
+		socket.send(svote)
+
+	}
 }
 
 /**
@@ -323,7 +334,15 @@ function voteForPokemon(pokemon, upvote) {
  * @param {boolean} nominate - whether the user is nominating or unnominating the pokemon
  */
 function nominatePokemon(pokemon, nominate) {
-	// your code goes here!
+	const nominee = {
+		type: "NOMINATE",
+		nominee: pokemon,
+		nominater: id,
+		unnominate: !nominate 
+		
+	}
+	const snominee = JSON.stringify(nominee)
+	socket.send(snominee)
 }
 
 /**
@@ -337,10 +356,7 @@ function connect() {
 	// only connect if the socket hasn't already connected, and a username is set
 	const timeOut = _set_connect_button_loading();
 	if (!socket && username.length > 0) {
-		/**
-		 * TODO: Write a line here opening a socket connection with the server, and assign
-		 * it to the socket variable!
-		 */
+		socket = new WebSocket(URL)
 
 		
 		// heartbeat functionality - do NOT touch! D:<
@@ -371,17 +387,14 @@ function connect() {
 			// TODO: handle both the "NOMINEES" event, and the "UPDATE" event
 			switch (eventData.type) {
 				case "NOMINEES": {
-					/**
-					 * TODO: Write logic here handling when the client
-					 * receives a "NOMINEES" event from the server
-					 */
+					updateNominees(eventData.nominees);
 					break;
 				}
 				case "UPDATE": {
-					/**
-					 * TODO: Write logic here handling when the client
-					 * receives a "UPDATE" event from the server
-					 */
+					votes = eventData.user.votes;
+					nominations = eventData.user.nominations;
+					updateVotesRemainingUI(votes);
+					updateNominationsRemainingUI(nominations);
 					break;
 				}
 				case "GREET": {
